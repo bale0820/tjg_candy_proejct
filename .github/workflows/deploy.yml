@@ -22,6 +22,7 @@ jobs:
       - name: 빌드
         run: |
           cd candy
+          chmod +x gradlew
           ./gradlew build
 
       - name: EC2로 전송
