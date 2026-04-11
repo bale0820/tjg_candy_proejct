@@ -40,10 +40,13 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
-          script: |
+         script: |
             cd /home/ubuntu/candy/prod
 
-            # 프로세스 있으면 죽이고 없으면 넘어감 (에러 무시)
-            pgrep -f 'candy-0.0.1-SNAPSHOT.jar' && pkill -f 'candy-0.0.1-SNAPSHOT.jar'
+            PID=$(pgrep -f candy-0.0.1-SNAPSHOT.jar || true)
+            if [ -n "$PID" ]; then
+              kill $PID
+              sleep 2
+            fi
 
-            nohup java -Xms256m -Xmx512m -jar candy-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
+            nohup /usr/bin/java -Xms256m -Xmx512m -jar candy-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
