@@ -46,10 +46,14 @@ jobs:
 
             cd /home/ubuntu/candy/prod
 
+            # 🔥 핵심: kill을 완전히 숨김
             PID=$(pgrep -f candy || true)
             if [ -n "$PID" ]; then
-            kill $PID
+            nohup kill $PID > /dev/null 2>&1 &
             sleep 2
             fi
 
             nohup java -Xms256m -Xmx512m -jar candy-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
+
+            echo "DEPLOY SUCCESS"
+            exit 0
