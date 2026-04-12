@@ -47,7 +47,7 @@ jobs:
 
             cd /home/ubuntu/candy/prod
 
-            echo "=== DEBUG START ==="
+            echo "=== DEBUG START ===="
             which java
             java -version
             ls -al
