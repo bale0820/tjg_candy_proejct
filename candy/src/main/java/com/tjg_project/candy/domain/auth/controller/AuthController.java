@@ -80,8 +80,8 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, csrfCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, roleCookie.toString())
                 .body(Map.of("accessToken", accessToken,
-                        "role", us.getRole()
-                ));
+                        "role", us.getRole(),
+                        "message", "안녕하세요"));
     }
 
     @PostMapping("/refresh")
