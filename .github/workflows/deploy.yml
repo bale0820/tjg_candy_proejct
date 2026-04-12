@@ -47,13 +47,23 @@ jobs:
 
             cd /home/ubuntu/candy/prod
 
-            echo "=== DEBUG START ===="
-            ps -ef | grep candy
-            echo "=== DEBUG END ===="
+            cd /home/ubuntu/candy/prod
 
-            # 기존 서버 전부 종료
-            ps -ef | grep '[j]ava -jar candy-0.0.1-SNAPSHOT.jar' | awk '{print $2}' | xargs -r kill
-            sleep 3
+            echo "=== BEFORE ==="
+            ps -ef | grep candy
+
+            PIDS=$(ps -ef | grep '[j]ava -jar candy-0.0.1-SNAPSHOT.jar' | awk '{print $2}')
+
+            if [ -n "$PIDS" ]; then
+              echo "KILL PIDS: $PIDS"
+              for PID in $PIDS; do
+                kill $PID
+              done
+              sleep 3
+            fi
+
+            echo "=== AFTER KILL ==="
+            ps -ef | grep candy
 
             rm -f app.log
 
