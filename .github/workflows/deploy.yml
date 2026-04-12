@@ -51,7 +51,7 @@ jobs:
             which java
             java -version
             ls -al
-            echo "=== DEBUG END ==="
+            echo "=== DEBUG END ===="
 
             PID=$(pgrep -f 'java -jar candy-0.0.1-SNAPSHOT.jar' | head -n 1 || true)
             if [ -n "$PID" ]; then
