@@ -26,13 +26,19 @@ jobs:
           ./gradlew clean build -x test
           ls -al build/libs
 
+      - name: JAR 이름 변경
+        run: |
+          cd candy/build/libs
+          mv candy-0.0.1-SNAPSHOT.jar candy-${{ github.run_number }}.jar
+          ls -al
+
       - name: EC2로 전송
         uses: appleboy/scp-action@v0.1.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
-          source: "candy/build/libs/candy-0.0.1-SNAPSHOT.jar"
+          source: "candy/build/libs/candy-*.jar"
           target: "/home/ubuntu/candy/prod"
           strip_components: 3
 
@@ -49,21 +55,35 @@ jobs:
 
             cd /home/ubuntu/candy/prod
 
+            LATEST_JAR=$(ls -t candy-*.jar | head -n 1)
+            echo "LATEST: $LATEST_JAR"
+            ln -sf $LATEST_JAR current.jar
+
             echo "=== SYSTEMD RESTART ====="
 
             sudo systemctl daemon-reload
             sudo systemctl restart candy
 
+            
+
             echo "=== HEALTH CHECK ==="
+
+            SUCCESS=false
 
             for i in {1..10}
             do
               sleep 2
               if curl -s http://localhost:8080/qwe/heal | grep "ok"; then
                 echo "SERVER IS UP"
+                SUCCESS=true
                 break
               fi
               echo "WAITING..."
             done
+
+            if [ "$SUCCESS" = false ]; then
+              echo "DEPLOY FAILED"
+              exit 1
+            fi
 
             echo "DEPLOY SUCCESS"
