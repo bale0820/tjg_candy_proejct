@@ -23,7 +23,7 @@ jobs:
         run: |
           cd candy
           chmod +x gradlew
-          ./gradlew build -x test
+          ./gradlew clean build -x test
 
       - name: EC2로 전송
         uses: appleboy/scp-action@v0.1.3
