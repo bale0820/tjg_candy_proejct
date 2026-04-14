@@ -41,18 +41,18 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
-         script: |
-          source ~/.bashrc
-          source ~/.profile
+          script: |
+            source ~/.bashrc
+            source ~/.profile
 
-          cd /home/ubuntu/candy/prod
+            cd /home/ubuntu/candy/prod
 
-          echo "=== SYSTEMD RESTART ==="
+            echo "=== SYSTEMD RESTART ==="
 
-          sudo systemctl daemon-reload
-          sudo systemctl restart candy
+            sudo systemctl daemon-reload
+            sudo systemctl restart candy
 
-          echo "=== STATUS ==="
-          sudo systemctl status candy
+            echo "=== STATUS ==="
+            sudo systemctl status candy
 
-          echo "DEPLOY SUCCESS"
+            echo "DEPLOY SUCCESS"
