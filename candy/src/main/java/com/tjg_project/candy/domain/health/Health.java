@@ -14,7 +14,7 @@ public class Health {
     @GetMapping("/heal")
     public Map<String, String> health() {
         return  Map.of(
-                "status", "ok!!"
+                "status", "ok!!!"
         );
     }
 }
