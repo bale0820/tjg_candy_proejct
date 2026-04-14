@@ -57,7 +57,7 @@ jobs:
             for i in {1..10}
             do
               sleep 2
-              if curl -s http://localhost:8080/health | grep "ok"; then
+              if curl -s https://candy-api.duckdns.org/health | grep "ok"; then
                 echo "SERVER IS UP"
                 break
               fi
