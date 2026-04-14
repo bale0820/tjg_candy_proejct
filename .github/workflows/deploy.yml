@@ -41,32 +41,18 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
-          script: |
-            source ~/.bashrc
-            source ~/.profile
+         script: |
+          source ~/.bashrc
+          source ~/.profile
 
-            cd /home/ubuntu/candy/prod
+          cd /home/ubuntu/candy/prod
 
-            cd /home/ubuntu/candy/prod
+          echo "=== SYSTEMD RESTART ==="
 
-            echo "=== BEFORE ======="
-            ps -ef | grep candy
+          sudo systemctl daemon-reload
+          sudo systemctl restart candy
 
-            PIDS=$(ps -ef | grep '[j]ava -jar candy-0.0.1-SNAPSHOT.jar' | awk '{print $2}')
+          echo "=== STATUS ==="
+          sudo systemctl status candy
 
-            if [ -n "$PIDS" ]; then
-              echo "KILL PIDS: $PIDS"
-              for PID in $PIDS; do
-                kill $PID
-              done
-              sleep 3
-            fi
-
-            echo "=== AFTER KILL ==="
-            ps -ef | grep candy
-
-            rm -f app.log
-
-            nohup java -Xms256m -Xmx512m -jar candy-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
-
-            echo "DEPLOY SUCCESS"
+          echo "DEPLOY SUCCESS"
