@@ -44,7 +44,7 @@ jobs:
 
       - name: EC2에서 실행
         uses: appleboy/ssh-action@v0.1.6
-        continue-on-error: true 
+        # continue-on-error: true 
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
