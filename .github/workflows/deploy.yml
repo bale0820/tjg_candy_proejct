@@ -31,6 +31,9 @@ jobs:
           cd candy/build/libs
           mv candy-0.0.1-SNAPSHOT.jar candy-${{ github.run_number }}.jar
           ls -al
+      - name: plain 제거
+        run: |
+          rm candy/build/libs/*plain.jar
 
       - name: EC2로 전송
         uses: appleboy/scp-action@v0.1.3
