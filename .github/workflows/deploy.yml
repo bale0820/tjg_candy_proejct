@@ -57,6 +57,12 @@ jobs:
             source ~/.profile
 
             cd /home/ubuntu/candy/prod
+            echo "=== VERSION LIST ==="
+            ls -al
+
+            # 현재 실행중 jar 백업
+            PREV_JAR=$(readlink current.jar)
+            echo "PREV: $PREV_JAR"
 
             LATEST_JAR=$(ls -t candy-*.jar | grep -v plain | head -n 1)
             echo "LATEST: $LATEST_JAR"
@@ -85,7 +91,14 @@ jobs:
             done
 
             if [ "$SUCCESS" = false ]; then
-              echo "DEPLOY FAILED"
+              echo "DEPLOY FAILED → ROLLBACK"
+
+              # 이전 버전으로 복구
+              ln -sf $PREV_JAR current.jar
+
+              echo "=== ROLLBACK RESTART ==="
+              sudo systemctl restart candy
+
               exit 1
             fi
 
