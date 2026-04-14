@@ -33,7 +33,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
           source: "candy/build/libs/candy-0.0.1-SNAPSHOT.jar"
-          target: "/home/ubuntu/candy/prod"
+          target: "/home/ubuntu/candy/test"
 
       - name: EC2에서 실행
         uses: appleboy/ssh-action@v0.1.6
