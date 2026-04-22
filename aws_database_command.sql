@@ -861,6 +861,7 @@ WHERE p.del_type = d.del_type
 AND cm.id = cs.main_id
 AND cs.id = p.category_sub_id;
 
-
+ALTER TABLE cart 
+ADD CONSTRAINT unique_cart UNIQUE (upk, ppk);
 
 
