@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tjg_project.candy.domain.product.entity.Product;
 import com.tjg_project.candy.domain.product.entity.ProductDetailView;
 import com.tjg_project.candy.domain.product.entity.ProductQnA;
+import com.tjg_project.candy.domain.product.entity.ProductReview;
 import com.tjg_project.candy.domain.product.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,7 @@ public class ProductController {
     }
 
     @GetMapping("/productReviewList")
-    public List<Map<String, Object>>  getProductReviewList() {
+    public List<ProductReview>  getProductReviewList() {
         return productService.getProductReviewList();
     }
 

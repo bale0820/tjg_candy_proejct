@@ -1,5 +1,6 @@
 package com.tjg_project.candy.global.util;
 
+import com.tjg_project.candy.global.common.dto.CustomUserDetails;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -47,8 +48,11 @@ public class JwtFilter extends OncePerRequestFilter {
                 if (jwtUtil.validateToken(token)) {
                     Long userId = jwtUtil.extractUserId(token);
 
+                    CustomUserDetails user =
+                            new CustomUserDetails(userId, null);
+
                     UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(userId, null, null);
+                            new UsernamePasswordAuthenticationToken(user, null, null);
                     authentication.setDetails(
                             new WebAuthenticationDetailsSource().buildDetails(request)
                     );

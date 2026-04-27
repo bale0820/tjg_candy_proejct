@@ -13,7 +13,7 @@ public interface AnalyticsRepository extends JpaRepository<Product, Long> {
         SELECT new com.tjg_project.candy.domain.analytics.dto.ConversionRateDto(
             p.id,
             p.productName,
-            (SELECT COUNT(v) FROM UserViewLog v WHERE v.ppk = p.id),
+            (SELECT SUM(v.qty) FROM UserViewLog v WHERE v.ppk = p.id),
             (SELECT COALESCE(SUM(od.qty),0)
                FROM OrderDetail od
                WHERE od.ppk = p.id)

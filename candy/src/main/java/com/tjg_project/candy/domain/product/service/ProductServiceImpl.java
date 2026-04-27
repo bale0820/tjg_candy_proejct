@@ -5,6 +5,7 @@ import com.tjg_project.candy.domain.order.repository.OrderDetailRepository;
 import com.tjg_project.candy.domain.product.entity.Product;
 import com.tjg_project.candy.domain.product.entity.ProductDetailView;
 import com.tjg_project.candy.domain.product.entity.ProductQnA;
+import com.tjg_project.candy.domain.product.entity.ProductReview;
 import com.tjg_project.candy.domain.product.repository.ProductDetailViewRepository;
 import com.tjg_project.candy.domain.product.repository.ProductQnARepository;
 import com.tjg_project.candy.domain.product.repository.ProductRepository;
@@ -59,7 +60,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Map<String, Object>> getProductReviewList() {
+    public List<ProductReview> getProductReviewList() {
         return productReviewRepository.findAllReviewWithUserName();
     }
 
