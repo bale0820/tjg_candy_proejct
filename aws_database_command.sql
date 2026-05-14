@@ -845,6 +845,31 @@ VALUES
   5
 );
 
+
+
+CREATE TABLE live_broadcast (
+
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+
+    product_id BIGINT NOT NULL,
+
+    streamer_id BIGINT NOT NULL,
+
+    title VARCHAR(255) NOT NULL,
+
+    room_id VARCHAR(255) NOT NULL,
+
+    thumbnail VARCHAR(500),
+
+    is_live BOOLEAN DEFAULT true,
+
+    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (product_id)
+    REFERENCES product(id)
+
+);
+
 select * from view_product_detail;
 DROP table view_product_detail;
 create view view_product_detail
