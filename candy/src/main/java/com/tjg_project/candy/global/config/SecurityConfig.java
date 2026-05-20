@@ -78,7 +78,8 @@ public class SecurityConfig {
                                         "/api/admin/reviews/**",
                                         "/advertise/**",
                                         "/update/**",
-                                        "/qwe/**"
+                                        "/qwe/**",
+                                        "/ai/**"
                                 ).permitAll()
                                 .anyRequest().authenticated()
                 )

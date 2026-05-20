@@ -123,3 +123,7 @@ cloud:
   aws:
     s3:
       bucket: candy-images-storage
+
+ai:
+ server:
+   url: http://localhost:8084
