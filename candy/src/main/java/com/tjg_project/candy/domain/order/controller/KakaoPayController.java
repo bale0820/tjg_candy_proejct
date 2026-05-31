@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -50,7 +51,7 @@ public class KakaoPayController {
     }
 
     @GetMapping("/qr/success")
-    public ResponseEntity<Void> success(@RequestParam String orderId, @RequestParam("pg_token") String pgToken) {
+    public ResponseEntity<String> success(@RequestParam String orderId, @RequestParam("pg_token") String pgToken) {
         KakaoApproveResponse approve = kakaoPayService.approve(orderId, pgToken);
         orderService.saveOrder(approve,payInfo);
         couponService.updateCoupon(payInfo.getCouponId());
@@ -59,16 +60,7 @@ public class KakaoPayController {
 
         productService.updateCount(productInfo);
 
-        String redirectUrl = "app".equalsIgnoreCase(payInfo.getReturnType())
-                ? "candy://payment/result?orderId=" + orderId + "&status=success"
-                : frontendUrl + "/payResult?orderId=" + orderId + "&status=success";
-
-        URI redirect = URI.create(
-                redirectUrl
-        );
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(redirect);
-        return new ResponseEntity<>(headers, HttpStatus.FOUND);
+        return redirectPaymentResult(orderId, "success");
     }
 
     /**
@@ -76,6 +68,9 @@ public class KakaoPayController {
      */
     @GetMapping("/qr/cancel")
     public ResponseEntity<?> cancel(@RequestParam String orderId) {
+        if (isAppReturn()) {
+            return redirectPaymentResult(orderId, "cancel");
+        }
         return ResponseEntity.ok(Map.of("status", "CANCEL", "orderId", orderId));
     }
 
@@ -84,6 +79,56 @@ public class KakaoPayController {
      */
     @GetMapping("/qr/fail")
     public ResponseEntity<?> fail(@RequestParam String orderId) {
+        if (isAppReturn()) {
+            return redirectPaymentResult(orderId, "fail");
+        }
         return ResponseEntity.ok(Map.of("status", "FAIL", "orderId", orderId));
+    }
+
+    private boolean isAppReturn() {
+        return payInfo != null && "app".equalsIgnoreCase(payInfo.getReturnType());
+    }
+
+    private ResponseEntity<String> redirectPaymentResult(String orderId, String status) {
+        String appUrl = "candy://payment/result?orderId=" + orderId + "&status=" + status;
+
+        if (isAppReturn()) {
+            String intentUrl = "intent://payment/result?orderId=" + orderId + "&status=" + status
+                    + "#Intent;scheme=candy;package=com.baleDev.Candy;end";
+
+            String html = """
+                    <!doctype html>
+                    <html lang="ko">
+                    <head>
+                      <meta charset="utf-8">
+                      <meta name="viewport" content="width=device-width, initial-scale=1">
+                      <title>결제 완료</title>
+                    </head>
+                    <body>
+                      <p>결제가 처리되었습니다. 앱으로 이동 중입니다.</p>
+                      <script>
+                        const appUrl = "%s";
+                        const intentUrl = "%s";
+                        window.location.replace(appUrl);
+                        setTimeout(function () {
+                          window.location.replace(intentUrl);
+                        }, 700);
+                      </script>
+                      <a href="%s">앱으로 돌아가기</a>
+                    </body>
+                    </html>
+                    """.formatted(appUrl, intentUrl, appUrl);
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.TEXT_HTML)
+                    .body(html);
+        }
+
+        URI redirect = URI.create(
+                frontendUrl + "/payResult?orderId=" + orderId + "&status=" + status
+        );
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(redirect);
+        return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
 }

@@ -116,8 +116,8 @@ app:
       - http://localhost:3000
       - https://candy-frontend-taupe.vercel.app
 
-  frontend-url: http://localhost:3000
-  backend-url: http://localhost:8080
+  frontend-url: ${APP_FRONTEND_URL:https://candy-frontend-taupe.vercel.app}
+  backend-url: ${APP_BACKEND_URL:https://candy-api.duckdns.org}
 
 cloud:
   aws:
