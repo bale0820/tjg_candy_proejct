@@ -68,7 +68,7 @@ jobs:
             echo "LATEST: $LATEST_JAR"
             ln -sf $LATEST_JAR current.jar
 
-            echo "=== SYSTEMD RESTART ====="
+            echo "=== SYSTEMD RESTART =====!"
 
             sudo systemctl daemon-reload
             sudo systemctl restart candy
