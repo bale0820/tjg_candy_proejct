@@ -25,10 +25,32 @@ public class CartServiceImpl  implements CartService {
     @Transactional // 중복 방지 Transaction
     // 장바구니 추가
     public Cart addToCart(Cart cart) {
+        return addToCart(cart, cart.getUser().getId());
+    }
+
+    @Override
+    @Transactional
+    public Cart addToCart(Cart cart, Long userId) {
+        if (cart.getProduct() == null || cart.getProduct().getId() == null) {
+            throw new IllegalArgumentException("Product id is required.");
+        }
+
+        if (userId == null) {
+            throw new IllegalArgumentException("User id is required.");
+        }
+
+        if (cart.getQty() <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than zero.");
+        }
+
+        Users user = new Users();
+        user.setId(userId);
+        cart.setUser(user);
+
         // 상품 id
         Long pid = cart.getProduct().getId();
         // 유저 id
-        Long uid = cart.getUser().getId();
+        Long uid = userId;
         // 수량
         int qty = cart.getQty();
         // 장바구니 존재 유무 체크

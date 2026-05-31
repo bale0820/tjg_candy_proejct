@@ -5,6 +5,7 @@ import com.tjg_project.candy.domain.order.entity.Cart;
 import com.tjg_project.candy.domain.order.service.CartService;
 import com.tjg_project.candy.global.common.dto.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/cart")
@@ -22,8 +24,17 @@ public class CartController {
 
     // 장바구니 등록
     @PostMapping("/add")
-    public Cart addToCart(@RequestBody Cart cart) {
-        return cartService.addToCart(cart);
+    public ResponseEntity<?> addToCart(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestBody Cart cart
+    ) {
+        Cart savedCart = cartService.addToCart(cart, user.getId());
+
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "cid", savedCart.getCid(),
+                "message", "Cart item saved"
+        ));
     }
 
 

@@ -57,6 +57,7 @@ public class SecurityConfig {
                                         "/login",
                                         "/product/**",
                                         "/notice/**",
+                                        "/notifications/**",
                                         "/member/**",
                                         "/orders/**",
                                         "/payment/**",

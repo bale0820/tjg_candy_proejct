@@ -16,6 +16,7 @@ public class KakaoPay {
     private List<Long> cidList;
     private Long couponId;
     private List<ProductInfo> productInfo;
+    private String returnType;
 
     @Data
     public static class Receiver {

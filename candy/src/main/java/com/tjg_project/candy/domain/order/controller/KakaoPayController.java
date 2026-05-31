@@ -59,8 +59,12 @@ public class KakaoPayController {
 
         productService.updateCount(productInfo);
 
+        String redirectUrl = "app".equalsIgnoreCase(payInfo.getReturnType())
+                ? "candy://payment/result?orderId=" + orderId + "&status=success"
+                : frontendUrl + "/payResult?orderId=" + orderId + "&status=success";
+
         URI redirect = URI.create(
-                frontendUrl + "/payResult?orderId=" + orderId + "&status=success"
+                redirectUrl
         );
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(redirect);

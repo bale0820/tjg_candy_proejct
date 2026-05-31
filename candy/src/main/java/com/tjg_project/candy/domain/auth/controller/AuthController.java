@@ -80,6 +80,7 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, csrfCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, roleCookie.toString())
                 .body(Map.of("accessToken", accessToken,
+                        "refreshToken", refresh.getToken(),
                         "role", us.getRole(),
                         "message", "안녕하세요"));
     }
@@ -142,6 +143,28 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, csrfCookieNew.toString())
                 .body(Map.of("accessToken", newAccessToken
                         ));
+    }
+
+    @PostMapping("/app/refresh")
+    public ResponseEntity<?> appRefresh(@RequestBody Map<String, String> request) {
+        String token = request.get("refreshToken");
+
+        if (token == null || token.isBlank()) {
+            return ResponseEntity.status(401).body(Map.of("error", "No refresh token"));
+        }
+
+        Optional<RefreshToken> newRefreshOpt = authService.verifyToken(token);
+        if (newRefreshOpt.isEmpty()) {
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid or expired refresh token"));
+        }
+
+        RefreshToken newRefresh = newRefreshOpt.get();
+        String newAccessToken = jwtUtil.generateAccessToken(newRefresh.getUserId());
+
+        return ResponseEntity.ok(Map.of(
+                "accessToken", newAccessToken,
+                "refreshToken", newRefresh.getToken()
+        ));
     }
 
     @PostMapping("/social-cookie")
