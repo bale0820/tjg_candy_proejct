@@ -8,6 +8,8 @@ import com.tjg_project.candy.domain.order.dto.KakaoReadyResponse;
 import com.tjg_project.candy.domain.order.service.KakaoPayService;
 import com.tjg_project.candy.domain.order.service.OrderService;
 import com.tjg_project.candy.domain.product.service.ProductService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -25,6 +27,8 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/payment")
 public class KakaoPayController {
+
+    private static final Logger log = LoggerFactory.getLogger(KakaoPayController.class);
 
     private final KakaoPayService kakaoPayService;
     private final OrderService orderService;
@@ -47,18 +51,63 @@ public class KakaoPayController {
     public KakaoReadyResponse ready(@RequestBody KakaoPay kakaoPay) {
         kakaoPay.setOrderId(UUID.randomUUID().toString());
         payInfo = kakaoPay;
-        return kakaoPayService.ready(kakaoPay);
+        log.info(
+                "[KAKAO_PAY][READY][REQUEST] orderId={}, userId={}, itemName={}, qty={}, totalAmount={}, couponId={}, returnType={}, cidListSize={}, productInfoSize={}",
+                kakaoPay.getOrderId(),
+                kakaoPay.getId(),
+                kakaoPay.getItemName(),
+                kakaoPay.getQty(),
+                kakaoPay.getTotalAmount(),
+                kakaoPay.getCouponId(),
+                kakaoPay.getReturnType(),
+                kakaoPay.getCidList() == null ? 0 : kakaoPay.getCidList().size(),
+                kakaoPay.getProductInfo() == null ? 0 : kakaoPay.getProductInfo().size()
+        );
+
+        KakaoReadyResponse response = kakaoPayService.ready(kakaoPay);
+        log.info(
+                "[KAKAO_PAY][READY][RESPONSE] orderId={}, tidExists={}, pcUrlExists={}, mobileUrlExists={}, appUrlExists={}",
+                kakaoPay.getOrderId(),
+                response != null && response.getTid() != null,
+                response != null && response.getNext_redirect_pc_url() != null,
+                response != null && response.getNext_redirect_mobile_url() != null,
+                response != null && response.getNext_redirect_app_url() != null
+        );
+        return response;
     }
 
     @GetMapping("/qr/success")
     public ResponseEntity<String> success(@RequestParam String orderId, @RequestParam("pg_token") String pgToken) {
+        log.info(
+                "[KAKAO_PAY][SUCCESS][CALLBACK] orderId={}, pgTokenExists={}, payInfoExists={}, returnType={}",
+                orderId,
+                pgToken != null && !pgToken.isBlank(),
+                payInfo != null,
+                payInfo == null ? null : payInfo.getReturnType()
+        );
         KakaoApproveResponse approve = kakaoPayService.approve(orderId, pgToken);
+        log.info(
+                "[KAKAO_PAY][APPROVE][RESPONSE] orderId={}, tid={}, status={}, method={}, approvedAt={}",
+                orderId,
+                approve == null ? null : approve.getTid(),
+                approve == null ? null : approve.getStatus(),
+                approve == null ? null : approve.getPaymentMethodType(),
+                approve == null ? null : approve.getApprovedAt()
+        );
         orderService.saveOrder(approve,payInfo);
+        log.info("[KAKAO_PAY][ORDER][SAVED] orderId={}", orderId);
+
         couponService.updateCoupon(payInfo.getCouponId());
+        log.info("[KAKAO_PAY][COUPON][UPDATED] orderId={}, couponId={}", orderId, payInfo.getCouponId());
 
         List<KakaoPay.ProductInfo> productInfo = payInfo.getProductInfo();
 
         productService.updateCount(productInfo);
+        log.info(
+                "[KAKAO_PAY][PRODUCT][COUNT_UPDATED] orderId={}, productInfoSize={}",
+                orderId,
+                productInfo == null ? 0 : productInfo.size()
+        );
 
         return redirectPaymentResult(orderId, "success!");
     }
@@ -68,6 +117,12 @@ public class KakaoPayController {
      */
     @GetMapping("/qr/cancel")
     public ResponseEntity<?> cancel(@RequestParam String orderId) {
+        log.info(
+                "[KAKAO_PAY][CANCEL][CALLBACK] orderId={}, payInfoExists={}, returnType={}",
+                orderId,
+                payInfo != null,
+                payInfo == null ? null : payInfo.getReturnType()
+        );
         if (isAppReturn()) {
             return redirectPaymentResult(orderId, "cancel");
         }
@@ -79,6 +134,12 @@ public class KakaoPayController {
      */
     @GetMapping("/qr/fail")
     public ResponseEntity<?> fail(@RequestParam String orderId) {
+        log.info(
+                "[KAKAO_PAY][FAIL][CALLBACK] orderId={}, payInfoExists={}, returnType={}",
+                orderId,
+                payInfo != null,
+                payInfo == null ? null : payInfo.getReturnType()
+        );
         if (isAppReturn()) {
             return redirectPaymentResult(orderId, "fail");
         }
@@ -86,7 +147,14 @@ public class KakaoPayController {
     }
 
     private boolean isAppReturn() {
-        return payInfo != null && "app".equalsIgnoreCase(payInfo.getReturnType());
+        boolean appReturn = payInfo != null && "app".equalsIgnoreCase(payInfo.getReturnType());
+        log.info(
+                "[KAKAO_PAY][RETURN_TYPE] appReturn={}, payInfoExists={}, returnType={}",
+                appReturn,
+                payInfo != null,
+                payInfo == null ? null : payInfo.getReturnType()
+        );
+        return appReturn;
     }
 
     private ResponseEntity<String> redirectPaymentResult(String orderId, String status) {
@@ -95,6 +163,14 @@ public class KakaoPayController {
         if (isAppReturn()) {
             String intentUrl = "intent://payment/result?orderId=" + orderId + "&status=" + status
                     + "#Intent;scheme=candy;package=com.baleDev.Candy;end";
+
+            log.info(
+                    "[KAKAO_PAY][REDIRECT][APP] orderId={}, status={}, appUrl={}, intentUrl={}",
+                    orderId,
+                    status,
+                    appUrl,
+                    intentUrl
+            );
 
             String html = """
                     <!doctype html>
@@ -126,6 +202,12 @@ public class KakaoPayController {
 
         URI redirect = URI.create(
                 frontendUrl + "/payResult?orderId=" + orderId + "&status=" + status
+        );
+        log.info(
+                "[KAKAO_PAY][REDIRECT][WEB] orderId={}, status={}, redirect={}",
+                orderId,
+                status,
+                redirect
         );
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(redirect);
