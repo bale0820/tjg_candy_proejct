@@ -60,7 +60,7 @@ public class KakaoPayController {
 
         productService.updateCount(productInfo);
 
-        return redirectPaymentResult(orderId, "success");
+        return redirectPaymentResult(orderId, "success!");
     }
 
     /**
