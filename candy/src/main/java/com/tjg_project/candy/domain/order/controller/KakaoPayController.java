@@ -66,12 +66,15 @@ public class KakaoPayController {
 
         KakaoReadyResponse response = kakaoPayService.ready(kakaoPay);
         log.info(
-                "[KAKAO_PAY][READY][RESPONSE] orderId={}, tidExists={}, pcUrlExists={}, mobileUrlExists={}, appUrlExists={}",
+                "[KAKAO_PAY][READY][RESPONSE] orderId={}, tidExists={}, pcUrlExists={}, mobileUrlExists={}, appUrlExists={}, pcUrl={}, mobileUrl={}, appUrl={}",
                 kakaoPay.getOrderId(),
                 response != null && response.getTid() != null,
                 response != null && response.getNext_redirect_pc_url() != null,
                 response != null && response.getNext_redirect_mobile_url() != null,
-                response != null && response.getNext_redirect_app_url() != null
+                response != null && response.getNext_redirect_app_url() != null,
+                response == null ? null : response.getNext_redirect_pc_url(),
+                response == null ? null : response.getNext_redirect_mobile_url(),
+                response == null ? null : response.getNext_redirect_app_url()
         );
         return response;
     }
@@ -109,7 +112,7 @@ public class KakaoPayController {
                 productInfo == null ? 0 : productInfo.size()
         );
 
-        return redirectPaymentResult(orderId, "success!");
+        return redirectPaymentResult(orderId, "success");
     }
 
     /**
