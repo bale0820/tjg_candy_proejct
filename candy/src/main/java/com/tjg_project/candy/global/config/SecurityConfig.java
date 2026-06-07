@@ -80,7 +80,9 @@ public class SecurityConfig {
                                         "/advertise/**",
                                         "/update/**",
                                         "/qwe/**",
-                                        "/ai/**"
+                                        "/ai/**",
+                                        "/swagger-ui/**",
+                                        "/v3/api-docs/**"
                                 ).permitAll()
                                 .anyRequest().authenticated()
                 )
