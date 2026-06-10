@@ -28,6 +28,6 @@ public class Notice {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt; // 등록일 (자동 생성)
 
-    @Column(name = "is_pinned", columnDefinition = "TINYINT(1)")
+    @Column(name = "is_pinned")
     private Boolean isPinned = false; // 상단 고정 여부 (선택적)
 }
